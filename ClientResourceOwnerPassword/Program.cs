@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using IdentityModel.Client;
 using Newtonsoft.Json.Linq;
 
-namespace Client
+namespace ClientResourceOwnerPassword
 {
     /// <summary>
-    /// 客户端授权模式
+    /// 资源所有者密码授权模式
     /// </summary>
     class Program
     {
@@ -22,17 +22,12 @@ namespace Client
                 Console.WriteLine(e);
                 throw;
             }
-           
-
             Console.WriteLine("Hello World!");
-
             Console.ReadKey();
-
         }
 
         public static async Task Test()
         {
-
             // discover endpoints from metadata
             var client = new HttpClient();
             var disco = await client.GetDiscoveryDocumentAsync("https://localhost:44350");
@@ -44,12 +39,14 @@ namespace Client
 
 
             // request token
-            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
             {
                 Address = disco.TokenEndpoint,
-
-                ClientId = "client",
+                ClientId = "ro.client",
                 ClientSecret = "secret",
+
+                UserName = "alice",
+                Password = "password",
                 Scope = "api1"
             });
 
@@ -63,7 +60,7 @@ namespace Client
 
 
             // call api
-             client = new HttpClient();
+            client = new HttpClient();
             client.SetBearerToken(tokenResponse.AccessToken);
 
             var response = await client.GetAsync("https://localhost:44392/identity");
