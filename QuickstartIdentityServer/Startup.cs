@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer4;
+using Microsoft.AspNetCore.Authentication.QQ;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace QuickstartIdentityServer
 {
@@ -22,6 +25,19 @@ namespace QuickstartIdentityServer
                 .AddInMemoryClients(Config.GetClients())
                 .AddTestUsers(Config.GetUsers());
 
+            services.AddAuthentication()
+                .AddQQ("QQ", qqOptions =>
+                {
+                    qqOptions.AppId = "<insert here>";
+                    qqOptions.AppKey = "<insert here>";
+                })
+                .AddGoogle("Google", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+
+                    options.ClientId = "<insert here>";
+                    options.ClientSecret = "<insert here>";
+                });
             services.AddMvc();
         }
 
@@ -32,6 +48,7 @@ namespace QuickstartIdentityServer
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseIdentityServer();
 
             app.UseMvc(routes =>
